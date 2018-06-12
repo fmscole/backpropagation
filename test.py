@@ -25,7 +25,7 @@ def test():
 
 #构建神经网络
 input_nodes = 784
-hidden_nodes = 100
+hidden_nodes = 400
 output_nodes = 10
 
 learning_rate = 0.1
@@ -36,9 +36,9 @@ n = neuralNetwork(input_nodes,hidden_nodes,output_nodes, learning_rate)
 data=my_data_set()
 data.load_mnist( kind='train')
 
-epochs = 1
+epochs = 10
 for e in range(epochs):
-    for i  in range(600):
+    for i  in range(60000):
         #小批量训练
         imgs,labs=data.next_batch(37)
         n.train(imgs, labs)

@@ -47,10 +47,10 @@ class neuralNetwork:
         # 在who更新之前，先把梯度存起来，更新完了就传不过去了
         hidden_errors = numpy.dot(self.who.T, output_errors) 
 
-        # 为了适应批量训练，这个地方要做小幅修改，要除以训练数量output_errors.shape[1]，更新为平均值
+        # 为了适应批量训练，这个地方要做小幅修改，要除以训练数量batchs，更新为平均值
         self.who += self.lr/batchs * numpy.dot(output_errors ,
                  numpy.transpose(hidden_outputs))
-        # 同样，这里也要除以训练数量inputs.shape[1] 
+        # 同样，这里也要除以训练数量batchs
         self.wih += self.lr/batchs * numpy.dot((hidden_errors 
             * hidden_outputs * (1.0 - hidden_outputs)), numpy.transpose(inputs))
              

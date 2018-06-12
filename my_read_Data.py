@@ -19,8 +19,8 @@ class my_data_set:
             batch_xs1 = self.images[:,i:]
             batch_ys1 = self.labels[:,i :]
             self.i =batch_size-self.size+self.i
-            batch_xs1 = np.concatenate([batch_xs1,self.images[:,0:self.i ]])
-            batch_ys1 =np.concatenate([batch_ys1,self.labels[:,0:self.i ]])
+            batch_xs1 = np.concatenate([batch_xs1,self.images[:,0:self.i ]],axis=1)
+            batch_ys1 =np.concatenate([batch_ys1,self.labels[:,0:self.i ]],axis=1)
             # print (self.i,batch_xs1.shape[0])
             return batch_xs1,batch_ys1
 
