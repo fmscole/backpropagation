@@ -1,11 +1,11 @@
 #python3
 import struct
-from glob import glob
-import os
 import numpy as np
 
 class my_data_set:
     def next_batch(self,batch_size):
+        if batch_size>=self.size: return self.images,self.labels
+
         i=self.i
         if i + batch_size<=self.size:
             batch_xs1 = self.images[:,i :i +  batch_size]
@@ -57,8 +57,8 @@ class my_data_set:
 
 if __name__=="__main__":
     mydata=my_data_set()
-    mydata.load_mnist( kind='train')
-    images,labels=mydata.next_batch(1000)
+    mydata.load_mnist( kind='test')
+    images,labels=mydata.next_batch(100000)
     print(images.shape)
     print(labels.shape)
     

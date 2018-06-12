@@ -39,7 +39,7 @@ class neuralNetwork:
         #每cm批次算一次准确率        
         cm=100  
         if self.n % cm == 0:
-            cc = self.m / (targets.shape[1]*cm)
+            cc = self.m / (batchs*cm)
             print(self.n, cc)
             self.m = 0
 

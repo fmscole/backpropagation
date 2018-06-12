@@ -36,9 +36,9 @@ n = neuralNetwork(input_nodes,hidden_nodes,output_nodes, learning_rate)
 data=my_data_set()
 data.load_mnist( kind='train')
 
-epochs = 10
+epochs = 1
 for e in range(epochs):
-    for i  in range(60000):
+    for i  in range(6000):
         #小批量训练
         imgs,labs=data.next_batch(37)
         n.train(imgs, labs)
