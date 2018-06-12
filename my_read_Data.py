@@ -3,28 +3,7 @@ import struct
 import numpy as np
 
 class my_data_set:
-    def next_batch(self,batch_size):
-        if batch_size>=self.size: return self.images,self.labels
-
-        i=self.i
-        if i + batch_size<=self.size:
-            batch_xs1 = self.images[:,i :i +  batch_size]
-            batch_ys1 = self.labels[:,i :i + batch_size]
-            self.i=self.i+batch_size
-            if self.i==self.size:
-                self.i=0
-                # print (self.i,batch_xs1.shape[0])
-            return batch_xs1,batch_ys1
-        if i <self.size:
-            batch_xs1 = self.images[:,i:]
-            batch_ys1 = self.labels[:,i :]
-            self.i =batch_size-self.size+self.i
-            batch_xs1 = np.concatenate([batch_xs1,self.images[:,0:self.i ]],axis=1)
-            batch_ys1 =np.concatenate([batch_ys1,self.labels[:,0:self.i ]],axis=1)
-            # print (self.i,batch_xs1.shape[0])
-            return batch_xs1,batch_ys1
-
-    def load_mnist(self, kind='train'):
+    def __init__(self, kind='train'):
         if kind=='train':
             images_path =r'./mnist_dataset/train-images.idx3-ubyte'
             labels_path =r'./mnist_dataset/train-labels.idx1-ubyte' 
@@ -54,10 +33,31 @@ class my_data_set:
         self.size=im.shape[1]
         self.i=0
         # return images, labels
+    def next_batch(self,batch_size):
+        if batch_size>=self.size: return self.images,self.labels
+
+        i=self.i
+        if i + batch_size<=self.size:
+            batch_xs1 = self.images[:,i :i +  batch_size]
+            batch_ys1 = self.labels[:,i :i + batch_size]
+            self.i=self.i+batch_size
+            if self.i==self.size:
+                self.i=0
+                # print (self.i,batch_xs1.shape[0])
+            return batch_xs1,batch_ys1
+        if i <self.size:
+            batch_xs1 = self.images[:,i:]
+            batch_ys1 = self.labels[:,i :]
+            self.i =batch_size-self.size+self.i
+            batch_xs1 = np.concatenate([batch_xs1,self.images[:,0:self.i ]],axis=1)
+            batch_ys1 =np.concatenate([batch_ys1,self.labels[:,0:self.i ]],axis=1)
+            # print (self.i,batch_xs1.shape[0])
+            return batch_xs1,batch_ys1
+
+    
 
 if __name__=="__main__":
-    mydata=my_data_set()
-    mydata.load_mnist( kind='test')
+    mydata=my_data_set( kind='test')
     images,labels=mydata.next_batch(100000)
     print(images.shape)
     print(labels.shape)
