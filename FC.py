@@ -23,7 +23,8 @@ class neuralNetwork:
         self.activation_function =sigmoid
 
     def train(self, inputs, targets):
-        #前向计算        
+        batchs=inputs.shape[1]
+        #向前计算        
         hidden_inputs = numpy.dot(self.wih, inputs)
         hidden_outputs = self.activation_function(hidden_inputs)
         final_inputs = numpy.dot(self.who, hidden_outputs)
@@ -32,7 +33,7 @@ class neuralNetwork:
         #计算训练过程中的准确率
         self.n = self.n + 1
         # 处理批量训练情况
-        for i in range(targets.shape[1]):
+        for i in range(batchs):
             t = (targets[:,i].argmax() == final_outputs[:,i].argmax())
             if t: self.m = self.m + 1
         #每cm批次算一次准确率        
@@ -43,13 +44,15 @@ class neuralNetwork:
             self.m = 0
 
         output_errors = targets - final_outputs
-        # 在who更新之前，先把梯度传过去，更新完了就传不过去了
+        # 在who更新之前，先把梯度存起来，更新完了就传不过去了
         hidden_errors = numpy.dot(self.who.T, output_errors) 
 
         # 为了适应批量训练，这个地方要做小幅修改，要除以训练数量output_errors.shape[1]，更新为平均值
-        self.who += self.lr/output_errors.shape[1] * numpy.dot(output_errors , numpy.transpose(hidden_outputs))
+        self.who += self.lr/batchs * numpy.dot(output_errors ,
+                 numpy.transpose(hidden_outputs))
         # 同样，这里也要除以训练数量inputs.shape[1] 
-        self.wih += self.lr/inputs.shape[1] * numpy.dot((hidden_errors * hidden_outputs * (1.0 - hidden_outputs)), numpy.transpose(inputs))
+        self.wih += self.lr/batchs * numpy.dot((hidden_errors 
+            * hidden_outputs * (1.0 - hidden_outputs)), numpy.transpose(inputs))
              
     
     def query(self, inputs):
