@@ -6,14 +6,15 @@ from my_read_Data import my_data_set
 #测试函数
 def test():
     test_data=my_data_set()
-    images_test,labels_test=test_data.load_mnist( kind='test')
-    
+    test_data.load_mnist( kind='test')
+    images_test,labels_test=test_data.next_batch(10000)
+
+    #矩阵运算放在循环外面比在里面速度快很多
+    outputs = n.query(images_test)
+
     scorecard = []
-    for j in range(10000):   
-        outputs = n.query(images_test[j])
-        label = numpy.argmax(outputs)
-        correct_label = numpy.argmax(labels_test[j])
-        if (label == correct_label):
+    for j in range(outputs.shape[1]):  
+        if (numpy.argmax(outputs[:,j]) == numpy.argmax(labels_test[:,j])):
             scorecard.append(1)
         else:
             scorecard.append(0)

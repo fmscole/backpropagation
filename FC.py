@@ -22,10 +22,7 @@ class neuralNetwork:
         # 激活函数sigmoid
         self.activation_function =sigmoid
 
-    def train(self, inputs_list, targets_list):
-        # 数据预处理，把list转换为两个二维矩阵
-        inputs = numpy.array(inputs_list, ndmin=2).T
-        targets = numpy.array(targets_list, ndmin=2).T
+    def train(self, inputs, targets):
         #前向计算        
         hidden_inputs = numpy.dot(self.wih, inputs)
         hidden_outputs = self.activation_function(hidden_inputs)
@@ -55,9 +52,7 @@ class neuralNetwork:
         self.wih += self.lr/inputs.shape[1] * numpy.dot((hidden_errors * hidden_outputs * (1.0 - hidden_outputs)), numpy.transpose(inputs))
              
     
-    def query(self, inputs_list):
-        inputs = numpy.array(inputs_list, ndmin=2).T
-        
+    def query(self, inputs):
         hidden_inputs = numpy.dot(self.wih, inputs)
         hidden_outputs = self.activation_function(hidden_inputs)
         final_inputs = numpy.dot(self.who, hidden_outputs)
