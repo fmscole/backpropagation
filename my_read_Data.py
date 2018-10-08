@@ -10,7 +10,7 @@ class my_data_set:
         else: 
             images_path =r'./mnist_dataset/t10k-images.idx3-ubyte' 
             labels_path =r'./mnist_dataset/t10k-labels.idx1-ubyte' 
-        print(images_path, labels_path)
+        # print(images_path, labels_path)
         with open(labels_path, 'rb') as lbpath:
             magic, n = struct.unpack('>II',lbpath.read(8))
 
