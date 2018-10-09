@@ -1,7 +1,7 @@
-from dense import Dense
-from relu import *
-from my_read_Data import my_data_set
-from batch_normal import BatchNormal
+from FCNet.dense import Dense
+from FCNet.relu import *
+from FCNet.my_read_Data import my_data_set
+from FCNet.batch_normal import BatchNormal
 class NetWork:
     def __init__(self):
         self.ds1=Dense(784,400)
