@@ -1,7 +1,7 @@
 #python3
 import numpy
-from FC import neuralNetwork
-from my_read_Data import my_data_set
+from FCNet.FC import neuralNetwork
+from FCNet.my_read_Data import my_data_set
 
 #测试函数
 def test():
