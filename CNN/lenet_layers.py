@@ -1,11 +1,11 @@
 import numpy as np
-from base_conv import Conv2D
-from fc import FullyConnect
-from pooling import MaxPooling, AvgPooling
-from softmax import Softmax
-from relu import Relu
-from my_read_Data import my_data_set
-from batch_normal import BatchNormal as BN
+from CNN.base_conv import Conv2D
+from CNN.fc import FullyConnect
+from CNN.pooling import MaxPooling, AvgPooling
+from CNN.softmax import Softmax
+from CNN.relu import Relu
+from CNN.my_read_Data import my_data_set
+from CNN.batch_normal import BatchNormal as BN
 import time
 
 data = my_data_set(kind='train')

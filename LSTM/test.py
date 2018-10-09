@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from lstm import LstmParam, LstmNetwork,Loss
+from LSTM.lstm import LstmParam, LstmNetwork,Loss
 import pickle as pk
 
 def test():

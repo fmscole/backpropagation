@@ -1,5 +1,5 @@
 import numpy as np
-from rnn import RNN,sigmoid
+from RNN.rnn import RNN,sigmoid
 
 #构建nums组训练数据，每组9个数据（9列行）
 def getrandomdata(nums):

@@ -1,5 +1,5 @@
 import numpy as np
-from lstm import LstmParam, LstmNetwork,Loss
+from LSTM.lstm import LstmParam, LstmNetwork,Loss
 import pickle as pk
 
 def train():
