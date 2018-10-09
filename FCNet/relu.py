@@ -40,7 +40,18 @@ class Relu_Sigmoid(object):
         self.eta =np.copy(eta)
         self.eta[self.x < 0] = 0
 
-        return d1+self.eta
+class Softmax(object):
+    def __init__(self, shape=None):
+        self.output_shape = shape
+    def forward(self, x):
+        self.out =softmax(x)
+        return  self.out
+    def gradient(self, eta):
+        # print ("out",self.out.shape)
+        # print ("eta", eta.shape)
+        dout=np.diag(self.out)-np.dot(self.out,self.out.T)
+        # print("dout",dout.shape)
+        return np.dot(dout,eta)
 import copy
 def softmax(x):
     #减去最大值
@@ -52,3 +63,4 @@ def softmax(x):
         s=np.sum(t)
         tx[:, i] = t/s
     return tx
+

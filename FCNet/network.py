@@ -6,7 +6,7 @@ class NetWork:
     def __init__(self):
         self.ds1=Dense(784,400)
         self.bn1=BatchNormal()
-        self.at1=Relu()
+        self.at1=Softmax()
         self.ds2=Dense(400,10)
         self.bn2=BatchNormal()
         self.at2 = sigmoid()
@@ -14,19 +14,19 @@ class NetWork:
         self.m = 0
     def forward(self,inputs,trainning=True):
         out=self.ds1.forward(inputs)
-        # out=self.bn1.forward(out,training=trainning)
+        out=self.bn1.forward(out,training=trainning)
         out=self.at1.forward(out)
         out=self.ds2.forward(out)
-        # out=self.bn2.forward(out,training=trainning)
+        out=self.bn2.forward(out,training=trainning)
         # out=self.at2.forward(out)
         out=softmax(out)
         return out
     def backward(self,eta):
         g=np.copy(eta)
-        # g=self.bn2.backward(g,lr=0.1)
+        g=self.bn2.backward(g,lr=0.1)
         g=self.ds2.backward(eta=g,lr=0.1)
         g=self.at1.gradient(g)
-        # g=self.bn1.backward(g,lr=0.1)
+        g=self.bn1.backward(g,lr=0.1)
         g=self.ds1.backward(g,lr=0.1)
 
     def train(self,data,target):
@@ -82,7 +82,7 @@ epochs = 1
 for e in range(epochs):
     for i  in range(60000):
         #小批量训练
-        batch=np.min([i+10,100])
+        batch=1#np.min([i+10,100])
         imgs,labs=data.next_batch(batch)
         n.train(imgs, labs)
 
