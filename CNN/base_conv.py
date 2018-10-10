@@ -5,7 +5,6 @@ import math
 
 class Conv2D(object):
     def __init__(self, shape, output_channels, ksize=3, stride=1, method='VALID'):
-        #shape = [batchsize, height,width, channel]
         self.input_shape = shape
         self.output_channels = output_channels
         self.input_channels = shape[-1]
@@ -22,12 +21,12 @@ class Conv2D(object):
             self.output_channels) / weights_scale
 
         if method == 'VALID':
-            self.eta = np.zeros((shape[0], (shape[1] - ksize + 1) // self.stride, (shape[1] - ksize + 1) // self.stride,
+            self.eta = np.zeros((shape[0], int((shape[1] - ksize + 1) / self.stride), int((shape[1] - ksize + 1) / self.stride),
                                  self.output_channels))
 
         if method == 'SAME':
             self.eta = np.zeros(
-                (shape[0], shape[1]//self.stride, shape[2]//self.stride, self.output_channels))
+                (shape[0], shape[1]/self.stride, shape[2]/self.stride, self.output_channels))
 
         self.w_gradient = np.zeros(self.weights.shape)
         self.b_gradient = np.zeros(self.bias.shape)
@@ -42,20 +41,28 @@ class Conv2D(object):
         col_weights = self.weights.reshape([-1, self.output_channels])
         if self.method == 'SAME':
             x = np.pad(x, (
-                (0, 0), (self.ksize // 2, self.ksize // 2), (self.ksize // 2, self.ksize // 2), (0, 0)),
+                (0, 0), (self.ksize / 2, self.ksize / 2), (self.ksize / 2, self.ksize / 2), (0, 0)),
                 'constant', constant_values=0)
 
-        self.col_image=im2col(x, self.ksize, self.stride)
-        conv_out =np.dot(self.col_image, col_weights) + self.bias       
-        conv_out= np.reshape(conv_out,np.hstack(([self.batchsize], self.eta[0].shape)))       
+        self.col_image = []
+        conv_out = np.zeros(self.eta.shape)
+        for i in range(self.batchsize):
+            img_i = x[i]
+            self.col_image_i = im2col(img_i, self.ksize, self.stride)
+            conv_out[i] = np.reshape(
+                np.dot(self.col_image_i, col_weights) + self.bias, self.eta[0].shape)
+            self.col_image.append(self.col_image_i)
+        self.col_image = np.array(self.col_image)
         return conv_out
 
     def gradient(self, eta):
         self.eta = eta
-        col_eta = np.reshape(eta, [ -1, self.output_channels])
-        self.w_gradient = np.dot(self.col_image.T,
-                                    col_eta).reshape(self.weights.shape)
-        self.b_gradient = np.sum(col_eta, axis=0)
+        col_eta = np.reshape(eta, [self.batchsize, -1, self.output_channels])
+
+        for i in range(self.batchsize):
+            self.w_gradient += np.dot(self.col_image[i].T,
+                                      col_eta[i]).reshape(self.weights.shape)
+        self.b_gradient += np.sum(col_eta, axis=(0, 1))
 
         # deconv of padded eta with flippd kernel to get next_eta
         if self.method == 'VALID':
@@ -65,22 +72,24 @@ class Conv2D(object):
 
         if self.method == 'SAME':
             pad_eta = np.pad(self.eta, (
-                (0, 0), (self.ksize // 2, self.ksize // 2), (self.ksize // 2, self.ksize // 2), (0, 0)),
+                (0, 0), (self.ksize / 2, self.ksize / 2), (self.ksize / 2, self.ksize / 2), (0, 0)),
                 'constant', constant_values=0)
-        
+        #flip_weights=self.weights.reshape([-1,self.input_channels,self.output_channels])
         flip_weights=self.weights[::-1,...]
-        flip_weights = flip_weights.swapaxes(1, 2)      
+        flip_weights = flip_weights.swapaxes(1, 2)
+        # flip_weights = np.flipud(np.fliplr(self.weights))
+        # flip_weights = flip_weights.swapaxes(2, 3)
         col_flip_weights = flip_weights.reshape([-1, self.input_channels])
-        
-        col_pad_eta=im2col(pad_eta, self.ksize, self.stride)
+        col_pad_eta = np.array([im2col(
+            pad_eta[i], self.ksize, self.stride) for i in range(self.batchsize)])
         next_eta = np.dot(col_pad_eta, col_flip_weights)
         next_eta = np.reshape(next_eta, self.input_shape)
         return next_eta
 
     def backward(self, alpha=0.00001, weight_decay=0.0004):
         # weight_decay = L2 regularization
-        # self.weights *= (1 - weight_decay)
-        # self.bias *= (1 - weight_decay)
+        self.weights *= (1 - weight_decay)
+        self.bias *= (1 - weight_decay)
         self.weights -= alpha/self.batchsize * self.w_gradient
         self.bias -= alpha/self.batchsize * self.bias
 
@@ -91,39 +100,23 @@ class Conv2D(object):
 def im2col(image, ksize, stride):
     # image is a 4d tensor([batchsize, width ,height, channel])
     image_col = []
-    for b in range(image.shape[0]):
-        for i in range(0, image.shape[1] - ksize + 1, stride):
-            for j in range(0, image.shape[2] - ksize + 1, stride):
-                col = image[b,i:i + ksize, j:j + ksize, :].reshape([-1])
-                image_col.append(col)
+    for i in range(0, image.shape[0] - ksize + 1, stride):
+        for j in range(0, image.shape[1] - ksize + 1, stride):
+            col = image[i:i + ksize, j:j + ksize, :].reshape([-1])
+            image_col.append(col)
     image_col = np.array(image_col)
 
     return image_col
 
-import time
+
 if __name__ == "__main__":
     # img = np.random.standard_normal((2, 32, 32, 3))
-    img = np.ones((64, 32, 32, 3))
-    img /= 20
-    conv = Conv2D(img.shape, 12, 5, 1)
-    next=[]
-    print(time.strftime("im2col %Y-%m-%d %H:%M:%S",time.localtime()))
-    for _ in range(50):        
-        next = im2col(img,5,1)
-
-    print(time.strftime("conv %Y-%m-%d %H:%M:%S",time.localtime()))
-    for _ in range(50):        
-        next = conv.forward(img)
-
-
-    
-
-    print(time.strftime("gradient  %Y-%m-%d %H:%M:%S",time.localtime()))    
-    next1 = next.copy() + 0.0011
-    for _ in range(50):
-        conv.gradient(next1-next)
-        # print(conv.w_gradient)
-        # print(conv.b_gradient)
-        conv.backward()
-    print("end")
-    print(time.strftime("%Y-%m-%d %H:%M:%S",time.localtime()))
+    img = np.ones((1, 32, 32, 3))
+    img *= 2
+    conv = Conv2D(img.shape, 12, 3, 1)
+    next = conv.forward(img)
+    next1 = next.copy() + 1
+    conv.gradient(next1-next)
+    print(conv.w_gradient)
+    print(conv.b_gradient)
+    conv.backward()
