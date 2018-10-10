@@ -32,10 +32,10 @@ class BatchNormal:
             self.xhut=self.xmu*self.ivar
 
             if self.mean is None: self.mean=mu
-            if self.var is None: self.var = self.m/(self.m-1)*var
+            if self.var is None: self.var = var
 
             self.mean=self.mean*momentum+mu*(1-momentum)
-            self.var = self.var * momentum + self.m/(self.m-1)*var * (1 - momentum)
+            self.var = self.var * momentum + var * (1 - momentum)
 
             return self.gamma*self.xhut+self.beta
         else:
