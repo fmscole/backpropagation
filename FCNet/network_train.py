@@ -25,7 +25,7 @@ class NetWork:
         g=np.copy(eta)
         g=self.bn2.backward(g,lr=0.1)
         g=self.ds2.backward(eta=g,lr=0.1)
-        g=self.at1.gradient(g)
+        g=self.at1.backward(g)
         g=self.bn1.backward(g,lr=0.1)
         g=self.ds1.backward(g,lr=0.1)
 
