@@ -2,7 +2,6 @@
 #源码来源， https://github.com/makeyourownneuralnetwork/makeyourownneuralnetwork，有部分修改
 import numpy
 import copy
-from batch_normal import BatchNormal as bn
 def sigmoid(x):
     return 1/(1+numpy.exp(-x))
 
@@ -33,13 +32,11 @@ class neuralNetwork:
         self.lr = learningrate
         # 激活函数sigmoid
         self.activation_function =sigmoid
-        self.bn=bn()
     def train(self, inputs, targets):
         batchs=inputs.shape[1]
 
         #向前计算        
         hidden_inputs = numpy.dot(self.wih, inputs)+self.bh
-        hidden_inputs = self.bn.forward(hidden_inputs, axis=-1)
         hidden_outputs = self.activation_function(hidden_inputs)
         final_inputs = numpy.dot(self.who, hidden_outputs)+self.bo
         final_outputs =self.activation_function(final_inputs)
@@ -67,7 +64,6 @@ class neuralNetwork:
         self.who += self.lr/batchs * numpy.dot(output_errors ,
                  numpy.transpose(hidden_outputs))
         hidden_errors=hidden_errors* hidden_outputs * (1.0 - hidden_outputs)
-        hidden_errors=self.bn.backward(hidden_errors)
         # 同样，这里也要除以训练数量batchs
         self.wih += self.lr/batchs * numpy.dot(hidden_errors, numpy.transpose(inputs))
         
