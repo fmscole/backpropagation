@@ -6,7 +6,7 @@ class NetWork:
     def __init__(self):
         self.ds1=Dense(784,400)
         self.bn1=BatchNormal()
-        self.at1=Softmax()
+        self.at1=Relu()
         self.ds2=Dense(400,10)
         self.bn2=BatchNormal()
         self.at2 = sigmoid()
@@ -50,7 +50,7 @@ class NetWork:
 
         self.backward(eta)
     def test(self):
-        batch_size = 1
+        batch_size = 10
         data = my_data_set(kind='test')
         m=0
         n=0
@@ -82,7 +82,7 @@ epochs = 1
 for e in range(epochs):
     for i  in range(60000):
         #小批量训练
-        batch=1#np.min([i+10,100])
+        batch=17  #np.min([i+10,100])
         imgs,labs=data.next_batch(batch)
         n.train(imgs, labs)
 
