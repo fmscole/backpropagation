@@ -14,14 +14,14 @@ test_data = my_data_set(kind='test')
 
 batch_size = 17
 
-conv1 = Conv2D([batch_size, 28, 28,1], 12, 5, 1)
+conv1 = Conv2D([batch_size, 28, 28,1], 8, 5, 1)
 bn1=BN()
 relu1 = Relu(conv1.output_shape)
-pool1 = AvgPooling(relu1.output_shape)
-conv2 = Conv2D(pool1.output_shape, 24, 3, 1)
+pool1 = MaxPooling(relu1.output_shape)
+conv2 = Conv2D(pool1.output_shape, 16, 5, 1)
 bn2=BN()
 relu2 = Relu(conv2.output_shape)
-pool2 = AvgPooling(relu2.output_shape)
+pool2 = MaxPooling(relu2.output_shape)
 fc1 = FullyConnect(pool2.output_shape, 200)
 relu3 = Relu(fc1.output_shape)
 fc2 = FullyConnect(relu3.output_shape, 10)
@@ -30,7 +30,7 @@ sf = Softmax(fc2.output_shape)
 def  test():
     train_acc=0
     total=0
-    for i in range(50):
+    for i in range(1000//batch_size):
         imgs, labs = test_data.next_batch(batch_size)
         forward(imgs, labs,training=False)
         # train_loss += sf.cal_loss(fc_out, np.array(label))
@@ -73,7 +73,7 @@ for epoch in range(1):
     train_acc = 0
     train_loss = 0
     # imgs,labs=data.next_batch(batch_size)
-    for i in range(100000):
+    for i in range(60000//batch_size):
         imgs, labs = data.next_batch(batch_size)
         forward(imgs, labs)
 
