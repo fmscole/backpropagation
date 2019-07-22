@@ -86,12 +86,12 @@ for epoch in range(1):
         grelu3=relu3.gradient(gfc2)
         gfc1=fc1.gradient(grelu3)
 
-        gpool2=pool2.gradient(gfc1)
+        gpool2=pool2.backward(gfc1)
         grelu2=relu2.gradient(gpool2)
         gbn2=bn2.backward(grelu2,lr=0.001)
         gconv2=conv2.gradient(gbn2)
 
-        gpool1=pool1.gradient(gconv2)
+        gpool1=pool1.backward(gconv2)
         grelu1=relu1.gradient(gpool1)
         gbn1=bn1.backward(grelu1,lr=0.001)
         conv1.gradient(gbn1)

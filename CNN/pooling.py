@@ -1,6 +1,46 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
+class MaxPooling(object):
+    def __init__(self,shape, size=2, **kwargs):
+        '''
+        size: Pooling的窗口大小，因为在使用中窗口大小与步长基本一致，所以简化为一个参数
+        '''
+        self.size = size
+        self.input_shape = shape
+        self.output_channels = shape[-1]
+        self.index = np.zeros(shape)
+        self.output_shape = [shape[0], shape[1] // self.size,
+                             shape[2] // self.size, self.output_channels]
+    def forward(self, x):
+        # 首先将输入按照窗口大小划分为若干个子集
+        #这个reshape方式非常精妙，把一个维度拆分为两个维度，并没有用滑动窗口的方式
+        # out = x.reshape(x.shape[0], x.shape[1]//self.size, self.size, x.shape[2]//self.size, self.size, x.shape[3])
+        # 取每个子集的最大值
+        # out = out.max(axis=(2, 4))
+        # 记录每个窗口中不是最大值的位置
+
+        #等价的滑动窗口方式:
+        size=self.size
+        x=x.transpose(0,3,1,2)
+        strides=x.strides
+        LEN=strides[-1]
+        shape=x.shape
+        reshape=(x.shape[0], x.shape[1],x.shape[2]//size,x.shape[3]//size,size,size)
+        strides=(strides[0],strides[1],shape[-1]*size*LEN,size*LEN,strides[-2],strides[-1])
+        out = np.lib.stride_tricks.as_strided(x,shape=reshape,strides=strides)
+        out=out.transpose(0,2,3,4,5,1)
+        out = out.max(axis=(3, 4))
+
+        self.mask = out.repeat(self.size, axis=1).repeat(self.size, axis=2) != x
+        return out
+
+    def backward(self, eta):
+        # 将上一层传入的梯度进行复制，使其shape扩充到forward中输入的大小
+        eta = eta.repeat(self.size, axis=1).repeat(self.size, axis=2)
+        # 将不是最大值的位置的梯度置为0
+        eta[self.mask] = 0
+        return eta
 
 class AvgPooling(object):
     def __init__(self, shape, ksize=2, stride=2):
@@ -31,7 +71,7 @@ class AvgPooling(object):
         return out
 
 
-class MaxPooling(object):
+class MaxPooling_slow(object):
     def __init__(self, shape, ksize=2, stride=2):
         self.input_shape = shape
         self.ksize = ksize
@@ -69,14 +109,34 @@ if __name__ == "__main__":
     print(img.shape)
     img = np.array([img, img2]).reshape(
         [2, img.shape[0], img.shape[1], img.shape[2]])
-
-    pool = MaxPooling(img.shape, 4, 4)
+    print(img.shape) 
+    print(img[0].shape)    
+    # plt.imshow(img[0])
+    pool = MaxPooling(img.shape)
     img1 = pool.forward(img)
-    img2 = pool.gradient(img1)
+    img2 = pool.backward(img1)
     # print(img[1, :, :, 1])
     # print(img1[1, :, :, 1])
     # print(img2[1, :, :, 1])
     # print(map(lambda x:int(x),img1[0]))
     print(img1[0].shape)
-    plt.imshow(img1[0]/256)
+    plt.imshow(img1[0])
     plt.show()
+
+    # size=4
+    # x=np.array(range(2*12*12*3)).reshape(2,12,12,3)
+    # print(x[0,:,:,0])
+
+    # x=x.transpose(0,3,1,2)
+    # strides=x.strides
+    # LEN=strides[-1]
+    # shape=x.shape
+    # reshape=(x.shape[0], x.shape[1],x.shape[2]//size,x.shape[3]//size,size,size)
+    # strides=(strides[0],strides[1],shape[-1]*size*LEN,size*LEN,strides[-2],strides[-1])
+    # out = np.lib.stride_tricks.as_strided(x,shape=reshape,strides=strides)
+    # out=out.transpose(0,2,3,4,5,1)
+    # out = out.max(axis=(4, 5))
+    # print(out[0,0,0,0])
+
+    
+

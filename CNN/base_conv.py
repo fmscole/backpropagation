@@ -110,16 +110,39 @@ def im2col(image, ksize, stride):
 
 
 if __name__ == "__main__":
-    # img = np.random.standard_normal((2, 32, 32, 3))
-    import time
-    start=time.time()
-    img = np.ones((200, 32, 32, 3))
-    img *= 2
-    conv = Conv2D(img.shape, 12, 3, 1)
+    # # img = np.random.standard_normal((2, 32, 32, 3))
+    # import time
+    # start=time.time()
+    # img = np.ones((200, 32, 32, 3))
+    # img *= 2
+    # conv = Conv2D(img.shape, 12, 3, 1)
+    # next = conv.forward(img)
+    # next1 = next.copy() + 1
+    # conv.gradient(next1-next)
+    # # print(conv.w_gradient)
+    # # print(conv.b_gradient)
+    # conv.backward()
+    # print(time.time()-start)
+
+    import cv2
+    import matplotlib.pyplot as plt
+    img = cv2.imread('15.png')
+    img=np.array([img])
+    
+    print(img.shape)
+    conv = Conv2D(img.shape, 3, 3, 1)
     next = conv.forward(img)
-    next1 = next.copy() + 1
-    conv.gradient(next1-next)
-    # print(conv.w_gradient)
-    # print(conv.b_gradient)
-    conv.backward()
-    print(time.time()-start)
+    # img2 = cv2.imread('test.jpg')
+    print(next[0].shape)
+    
+    # plt.imshow(img[0])
+    plt.imshow(next[0])
+    
+    # print(img[1, :, :, 1])
+    # print(img1[1, :, :, 1])
+    # print(img2[1, :, :, 1])
+    # print(map(lambda x:int(x),img1[0]))
+    # print(img1[0].shape)
+    # plt.imshow(img1[0]/256)
+    plt.show()
+
