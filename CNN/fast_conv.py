@@ -8,7 +8,6 @@ class Conv2D(object):
         self.input_shape = shape
         self.output_channels = output_channels
         self.input_channels = shape[-1]
-        self.batchsize = shape[0]
         self.stride = stride
         self.ksize = ksize
         self.method = method
@@ -38,6 +37,7 @@ class Conv2D(object):
             print('input tensor height can\'t fit stride')
 
     def forward(self, x):
+        self.batchsize = x.shape[0]
         if self.method == 'SAME':
             x = np.pad(x, (
                 (0, 0), (self.ksize // 2, self.ksize // 2), (self.ksize // 2, self.ksize // 2), (0, 0)),
@@ -46,7 +46,7 @@ class Conv2D(object):
         conv_out=np.tensordot(self.col_image,self.weights, axes=([3,4,5],[0,1,2]))
         return conv_out
 
-    def gradient(self, eta):
+    def backward(self, eta):
         self.eta = eta
         col_image=self.col_image.transpose(3,4,5,0,1,2)
         self.w_gradient=np.tensordot(col_image,self.eta,axes=([3,4,5],[0,1,2]))
@@ -66,7 +66,7 @@ class Conv2D(object):
         next_eta=np.tensordot(pad_eta,weights, axes=([3,4,5],[0,1,2]))
         return next_eta
 
-    def backward(self, alpha=0.00001, weight_decay=0.0004):
+    def gradient(self, alpha=0.00001, weight_decay=0.0004):
         # weight_decay = L2 regularization
         self.weights *= (1 - weight_decay)
         self.bias *= (1 - weight_decay)

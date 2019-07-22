@@ -1,43 +1,33 @@
 import numpy as np
 
 class Relu(object):
-    def __init__(self, shape):
-        self.eta = np.zeros(shape)
-        self.x = np.zeros(shape)
-        self.output_shape = shape
-
     def forward(self, x):
         self.x = x
-        return np.maximum(x, 0)
+        return np.maximum(0, x)
 
-    def gradient(self, eta):
-        self.eta = eta
-        self.eta[self.x<0]=0
-        return self.eta
+    def backward(self, eta):
+        eta[self.x<=0] = 0
+        return eta
 
-class sigmoid(object):
-    def __init__(self, shape):
-        self.output_shape = shape
-
+class Softmax(object):
     def forward(self, x):
-        self.out = 1/(1+np.exp(-x))
-        return self.out
+        '''
+        x.shape = (N, C)
+        接收批量的输入，每个输入是一维向量
+        计算公式为：
+        a_{ij}=\frac{e^{x_{ij}}}{\sum_{j}^{C} e^{x_{ij}}}
+        '''
+        v = np.exp(x - x.max(axis=-1, keepdims=True))    
+        return v / v.sum(axis=-1, keepdims=True)
+    
+    def backward(self, y):
+        # 一般Softmax的反向传播和CrossEntropyLoss的放在一起
+        pass
 
-    def gradient(self, eta):
-        return eta*self.out*(1-self.out)
+class Sigmoid(object):
+    def forward(self, x):
+        self.y = 1 / (1 + np.exp(-x))
+        return self.y
 
-class Relu_Sigmoid(object):
-    def __init__(self, shape):
-        self.output_shape = shape
-    def forward(self,x):
-        self.x = x
-        self.out = 1 / (1 + np.exp(-x))
-
-        return np.maximum(x, 0)+self.out
-
-    def gradient(self,eta):
-        d1=eta * self.out * (1 - self.out)
-        self.eta =np.copy(eta)
-        self.eta[self.x < 0] = 0
-
-        return d1+self.eta
+    def backward(self, eta):
+        return np.einsum('...,...,...->...', self.y, 1 - self.y, eta, optimize=True)

@@ -2,16 +2,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cv2
 class MaxPooling(object):
-    def __init__(self,shape, size=2, **kwargs):
+    def __init__(self, size=2, **kwargs):
         '''
         size: Pooling的窗口大小，因为在使用中窗口大小与步长基本一致，所以简化为一个参数
         '''
         self.size = size
-        self.input_shape = shape
-        self.output_channels = shape[-1]
-        self.index = np.zeros(shape)
-        self.output_shape = [shape[0], shape[1] // self.size,
-                             shape[2] // self.size, self.output_channels]
+        
     def forward(self, x):
         # 首先将输入按照窗口大小划分为若干个子集
         #这个reshape方式非常精妙，把一个维度拆分为两个维度，并没有用滑动窗口的方式
@@ -41,8 +37,20 @@ class MaxPooling(object):
         # 将不是最大值的位置的梯度置为0
         eta[self.mask] = 0
         return eta
+# 平均池化，用的很少，参考Maxpooling
+class MeanPooling(object):
+    def __init__(self,size=2, **kwargs):
+        self.size = size
+        
+    def forward(self, x):
+        out = x.reshape(x.shape[0], x.shape[1]//self.size, self.size, x.shape[2]//self.size, self.size, x.shape[3])
+        return out.mean(axis=(2, 4))
 
-class AvgPooling(object):
+    def backward(self, eta):
+        return (eta / self.size**2).repeat(self.size, axis=1).repeat(self.size, axis=2)
+
+
+class AvgPooling_slow(object):
     def __init__(self, shape, ksize=2, stride=2):
         self.input_shape = shape
         self.ksize = ksize

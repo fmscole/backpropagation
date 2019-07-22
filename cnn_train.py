@@ -2,9 +2,10 @@ import numpy as np
 # from CNN.base_conv import Conv2D
 from CNN.fast_conv import Conv2D
 from CNN.fc import FullyConnect
-from CNN.pooling import MaxPooling, AvgPooling
+# from CNN.pooling import MaxPooling as Pooling
+from CNN.pooling import MeanPooling as Pooling
 from CNN.softmax import Softmax
-from CNN.relu import Relu,sigmoid
+from CNN.relu import Relu
 from CNN.my_read_Data import my_data_set
 from CNN.batch_normal import BatchNormal as BN
 import time
@@ -14,33 +15,34 @@ test_data = my_data_set(kind='test')
 
 batch_size = 17
 
-conv1 = Conv2D([batch_size, 28, 28,1], 8, 5, 1)
+conv1 = Conv2D([batch_size,28, 28,1], 8, 5, 1)
 bn1=BN()
-relu1 = Relu(conv1.output_shape)
-pool1 = MaxPooling(relu1.output_shape)
-conv2 = Conv2D(pool1.output_shape, 16, 5, 1)
+relu1 = Relu()
+pool1 = Pooling()
+conv2 = Conv2D([batch_size,24, 24,8], 16, 5, 1)
 bn2=BN()
-relu2 = Relu(conv2.output_shape)
-pool2 = MaxPooling(relu2.output_shape)
-fc1 = FullyConnect(pool2.output_shape, 200)
-relu3 = Relu(fc1.output_shape)
-fc2 = FullyConnect(relu3.output_shape, 10)
-sf = Softmax(fc2.output_shape)
+relu2 = Relu()
+# pool2 = Pooling()
+fc1 = FullyConnect(1024, 200)
+relu3 = Relu()
+fc2 = FullyConnect(200, 10)
+sf = Softmax()
 
 def  test():
     train_acc=0
     total=0
-    for i in range(1000//batch_size):
+    batch_size=17
+    for i in range(10000//batch_size):
         imgs, labs = test_data.next_batch(batch_size)
-        forward(imgs, labs,training=False)
+        sf=forward(imgs, labs,training=False)
         # train_loss += sf.cal_loss(fc_out, np.array(label))
 
         for j in range(batch_size):
-            if np.argmax(sf.softmax[j]) == np.argmax(labs[j]):
+            if np.argmax(sf[j]) == np.argmax(labs[j]):
                 train_acc += 1
             total+=1
-        print ("%d /%d   train_acc: %.4f  " % (i,10000//batch_size//10,train_acc / total))
-    print (" train_acc: %.4f  " % (train_acc / total))
+        # print ("%d /%d   train_acc: %.4f  " % (i,10000//batch_size//10,train_acc / total))
+    print ("Test_acc: %.4f  " % (train_acc / total))
 
 
 def forward(imgs, labs,training=True):
@@ -52,16 +54,17 @@ def forward(imgs, labs,training=True):
     conv2_out = conv2.forward(pool1_out)
     bn2_out = bn2.forward(conv2_out, axis=3,training=training)
     relu2_out = relu2.forward(bn2_out)
-    pool2_out = pool2.forward(relu2_out)
+    # pool2_out = pool2.forward(relu2_out)
 
-    fc1_out1 = fc1.forward(pool2_out)
+    fc1_out1 = fc1.forward(relu2_out)
     relu3_out1 = relu3.forward(fc1_out1)
     fc2_out = fc2.forward(relu3_out1)
-    sf.cal_loss(fc2_out, labs)
+    sf_out=sf.forward(fc2_out)
+    return sf_out
 
-start=time.time()
-for epoch in range(1):
 
+for epoch in range(5):
+    start=time.time()
     learning_rate = 1
 
     batch_loss = 0
@@ -75,43 +78,45 @@ for epoch in range(1):
     # imgs,labs=data.next_batch(batch_size)
     for i in range(60000//batch_size):
         imgs, labs = data.next_batch(batch_size)
-        forward(imgs, labs)
+        imgs=imgs
+        sf_out=forward(imgs, labs)
 
         for j in range(batch_size):
-            if np.argmax(sf.softmax[j]) == np.argmax(labs[j]):
+            if np.argmax(sf_out[j]) == np.argmax(labs[j]):
                 train_acc += 1
 
-        sf.gradient()
-        gfc2=fc2.gradient(sf.eta)
-        grelu3=relu3.gradient(gfc2)
-        gfc1=fc1.gradient(grelu3)
+        # sf.gradient()
+        gfc2=fc2.backward(sf_out-labs)
+        grelu3=relu3.backward(gfc2)
+        gfc1=fc1.backward(grelu3)
 
-        gpool2=pool2.backward(gfc1)
-        grelu2=relu2.gradient(gpool2)
+        # gpool2=pool2.backward(gfc1)
+        grelu2=relu2.backward(gfc1)
         gbn2=bn2.backward(grelu2,lr=0.001)
-        gconv2=conv2.gradient(gbn2)
+        gconv2=conv2.backward(gbn2)
 
         gpool1=pool1.backward(gconv2)
-        grelu1=relu1.gradient(gpool1)
+        grelu1=relu1.backward(gpool1)
         gbn1=bn1.backward(grelu1,lr=0.001)
-        conv1.gradient(gbn1)
+        conv1.backward(gbn1)
         # fc1.gradient(relu1.gradient(fc2.gradient(sf.eta)))
 
         
         
-        fc2.backward(alpha=learning_rate, weight_decay=0.0004)
-        fc1.backward(alpha=learning_rate, weight_decay=0.0004)
+        fc2.gradient(alpha=learning_rate, weight_decay=0.001)
+        fc1.gradient(alpha=learning_rate, weight_decay=0.001)
 
         # fc.backward(alpha=learning_rate, weight_decay=0.0004)
-        conv2.backward(alpha=learning_rate, weight_decay=0.0004)
-        conv1.backward(alpha=learning_rate, weight_decay=0.0004)
+        conv2.gradient(alpha=learning_rate, weight_decay=0.001)
+        conv1.gradient(alpha=learning_rate, weight_decay=0.001)
 
-        mod = 10
+        mod = 100
         if i % mod == 0:
-            print(time.time()-start)
-            start=time.time()
+            
             print ("i=%d   train_acc: %.4f  " % (i, train_acc / (mod * batch_size)))
             train_acc = 0
-
-        if (i+1) % 100==0:
-            test()
+    print("----------------------------------------------------------------------------------------------------")
+    print(time.time()-start)
+    start=time.time()
+    test()
+    print("----------------------------------------------------------------------------------------------------")

@@ -2,39 +2,18 @@ import numpy as np
 def sigmoid(x):
     return 1/(1+np.exp(-x))
 class Softmax(object):
-    def __init__(self, shape):
-        self.softmax = np.zeros(shape)
-        self.eta = np.zeros(shape)
-        self.batchsize = shape[0]
-
-    def cal_loss(self, prediction, label):
-        # self.label = label
-        # self.prediction = prediction
-        # self.predict(prediction)
-        self.softmax=self.predict(prediction)
-        # self.softmax=sigmoid(prediction)
-        self.eta=self.softmax-label
-        # self.loss = 0
-        # for i in range(self.batchsize):
-        #     self.loss += np.log(np.sum(np.exp(prediction[i]))) - prediction[i, label[i]]
-
-        # return self.loss
-
-    def predict(self, prediction):
-        exp_prediction = np.zeros(prediction.shape)
-        self.softmax = np.zeros(prediction.shape)
-
-        exp_prediction=prediction.copy()
-        for i in range(self.batchsize):
-            exp_prediction[i, :] -= np.max(exp_prediction[i, :])
-            exp_prediction[i] = np.exp(prediction[i])
-            self.softmax[i] = exp_prediction[i]/np.sum(exp_prediction[i])
+    def forward(self, x):
+        '''
+        x.shape = (N, C)
+        接收批量的输入，每个输入是一维向量
+        计算公式为：
+        a_{ij}=\frac{e^{x_{ij}}}{\sum_{j}^{C} e^{x_{ij}}}
+        '''
+        v = np.exp(x - x.max(axis=-1, keepdims=True))    
+        return v / v.sum(axis=-1, keepdims=True)
+    
+    def backward(self, y):
+        # 一般Softmax的反向传播和CrossEntropyLoss的放在一起
+        pass
+    # def cal_loss(self, y,t):
         
-        return self.softmax
-
-    def gradient(self):
-        # self.eta = self.softmax.copy()
-        # for i in range(self.batchsize):
-        #     self.eta[i, self.label[i]] -= 1
-        
-        return self.eta

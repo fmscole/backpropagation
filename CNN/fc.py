@@ -4,28 +4,28 @@ import math
 
 
 class FullyConnect(object):
-    def __init__(self, shape, output_num):
-        self.input_shape = shape
-        self.batchsize = shape[0]
+    def __init__(self, input_num, output_num):
+        
+        self.input_len = input_num
 
-        input_len = reduce(lambda x, y: x * y, shape[1:])
+        self.weights = np.random.standard_normal((self.input_len, output_num))/100
+        self.bias = np.random.standard_normal(output_num)/100
 
-        # self.weights = np.random.standard_normal((input_len, output_num))/100
-        # self.bias = np.random.standard_normal(output_num)/100
-
-        self.weights = np.random.normal(0.0, pow(input_len, -0.5), (input_len, output_num))
+        self.weights = np.random.normal(0.0, pow(self.input_len, -0.5), (self.input_len, output_num))
         self.bias = np.random.normal(0.0, pow(output_num, -0.5),output_num)
 
-        self.output_shape = [self.batchsize, output_num]
+        self.output_shape = [-1, output_num]
         self.w_gradient = np.zeros(self.weights.shape)
         self.b_gradient = np.zeros(self.bias.shape)
 
     def forward(self, x):
-        self.x = x.reshape([self.batchsize, -1])
+        self.batchsize = x.shape[0]
+        self.x = x.reshape(-1, self.input_len)
         output = np.dot(self.x, self.weights)+self.bias
+        self.input_shape=x.shape
         return output
 
-    def gradient(self, eta):
+    def backward(self, eta):
         # for i in range(eta.shape[0]):
         #     col_x = self.x[i][:, np.newaxis]
         #     eta_i = eta[i][:, np.newaxis].T
@@ -38,7 +38,7 @@ class FullyConnect(object):
 
         return next_eta
 
-    def backward(self, alpha, weight_decay=0.0004):
+    def gradient(self, alpha, weight_decay=0.0004):
         # weight_decay = L2 regularization
         # self.weights *= (1 - weight_decay)
         # self.bias *= (1 - weight_decay)
