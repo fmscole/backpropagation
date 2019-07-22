@@ -48,8 +48,7 @@ class Conv2D(object):
 
     def backward(self, eta):
         self.eta = eta
-        col_image=self.col_image.transpose(3,4,5,0,1,2)
-        self.w_gradient=np.tensordot(col_image,self.eta,axes=([3,4,5],[0,1,2]))
+        self.w_gradient=np.tensordot(self.col_image,self.eta,axes=([0,1,2],[0,1,2]))
 
         if self.method == 'VALID':
             pad_eta = np.pad(self.eta, (
@@ -62,8 +61,7 @@ class Conv2D(object):
                 'constant', constant_values=0)
 
         pad_eta=self.split_by_strides(pad_eta)
-        weights=self.weights.transpose(0,1,3,2)
-        next_eta=np.tensordot(pad_eta,weights, axes=([3,4,5],[0,1,2]))
+        next_eta=np.tensordot(pad_eta,self.weights, axes=([3,4,5],[0,1,3]))
         return next_eta
 
     def gradient(self, alpha=0.00001, weight_decay=0.0004):

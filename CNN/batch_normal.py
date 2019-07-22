@@ -8,7 +8,7 @@ class BatchNormal:
         self.mean=None
         self.var=None
         pass
-    def forward(self,input,axis=0,momentum=0.95,training=True):
+    def forward(self,input,axis=3,momentum=0.95,training=True):
         '''
         axis: channel所在的维度,比如input为[batch,height,width,channel],则axis=3（或-1）。
         这样就是对整个batch的同一特征平面（feature）标准化。

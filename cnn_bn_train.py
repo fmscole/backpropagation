@@ -13,7 +13,7 @@ import time
 data = my_data_set(kind='train')
 test_data = my_data_set(kind='test')
 
-batch_size = 170
+batch_size = 167
 
 conv1 = Conv2D([batch_size,28, 28,1], 8, 5, 1)
 bn1=BN()
@@ -31,7 +31,7 @@ sf = Softmax()
 def  test():
     train_acc=0
     total=0
-    batch_size=1
+    batch_size=10000
     for i in range(10000//batch_size):
         imgs, labs = test_data.next_batch(batch_size)
         sf=forward(imgs, labs,training=False)
@@ -47,12 +47,12 @@ def  test():
 
 def forward(imgs, labs,training=True):
     conv1_out = conv1.forward(imgs)
-    bn1_out=bn1.forward(conv1_out, axis=3,training=training)
+    bn1_out=bn1.forward(conv1_out,training=training)
     relu1_out = relu1.forward(bn1_out)
     pool1_out = pool1.forward(relu1_out)
 
     conv2_out = conv2.forward(pool1_out)
-    bn2_out = bn2.forward(conv2_out, axis=3,training=training)
+    bn2_out = bn2.forward(conv2_out,training=training)
     relu2_out = relu2.forward(bn2_out)
     # pool2_out = pool2.forward(relu2_out)
 
