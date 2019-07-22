@@ -42,8 +42,9 @@ class FullyConnect(object):
         # weight_decay = L2 regularization
         # self.weights *= (1 - weight_decay)
         # self.bias *= (1 - weight_decay)
-        alpha=np.min( [alpha /self.batchsize,0.01])
-        # alpha=np.max( alpha /self.batchsize,0.001)
+        # alpha=np.min( [alpha /self.batchsize,0.01])
+        # alpha=np.max( ,0.001)
+        alpha=alpha /self.batchsize
         self.weights -= alpha* self.w_gradient
         self.bias -= alpha * self.b_gradient
         # zero gradient

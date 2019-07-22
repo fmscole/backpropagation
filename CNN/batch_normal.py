@@ -8,7 +8,7 @@ class BatchNormal:
         self.mean=None
         self.var=None
         pass
-    def forward(self,input,axis=0,momentum=0.999,training=True):
+    def forward(self,input,axis=0,momentum=0.95,training=True):
         '''
         axis: channel所在的维度,比如input为[batch,height,width,channel],则axis=3（或-1）。
         这样就是对整个batch的同一特征平面（feature）标准化。
@@ -31,10 +31,10 @@ class BatchNormal:
             self.xhut=self.xmu*self.ivar
 
             if self.mean is None: self.mean=mu
-            if self.var is None: self.var = self.m/(self.m-1)*var
+            if self.var is None: self.var =var
 
             self.mean=self.mean*momentum+mu*(1-momentum)
-            self.var = self.var * momentum + self.m/(self.m-1)*var * (1 - momentum)
+            self.var = self.var * momentum + var * (1 - momentum)
 
             return self.gamma*self.xhut+self.beta
         else:

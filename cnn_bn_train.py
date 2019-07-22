@@ -13,14 +13,14 @@ import time
 data = my_data_set(kind='train')
 test_data = my_data_set(kind='test')
 
-batch_size = 17
+batch_size = 170
 
 conv1 = Conv2D([batch_size,28, 28,1], 8, 5, 1)
-# bn1=BN()
+bn1=BN()
 relu1 = Relu()
 pool1 = Pooling()
 conv2 = Conv2D([batch_size,24, 24,8], 16, 5, 1)
-# bn2=BN()
+bn2=BN()
 relu2 = Relu()
 # pool2 = Pooling()
 fc1 = FullyConnect(1024, 200)
@@ -31,7 +31,7 @@ sf = Softmax()
 def  test():
     train_acc=0
     total=0
-    batch_size=170
+    batch_size=1
     for i in range(10000//batch_size):
         imgs, labs = test_data.next_batch(batch_size)
         sf=forward(imgs, labs,training=False)
@@ -47,13 +47,13 @@ def  test():
 
 def forward(imgs, labs,training=True):
     conv1_out = conv1.forward(imgs)
-    # bn1_out=bn1.forward(conv1_out, axis=3,training=training)
-    relu1_out = relu1.forward(conv1_out)
+    bn1_out=bn1.forward(conv1_out, axis=3,training=training)
+    relu1_out = relu1.forward(bn1_out)
     pool1_out = pool1.forward(relu1_out)
 
     conv2_out = conv2.forward(pool1_out)
-    # bn2_out = bn2.forward(conv2_out, axis=3,training=training)
-    relu2_out = relu2.forward(conv2_out)
+    bn2_out = bn2.forward(conv2_out, axis=3,training=training)
+    relu2_out = relu2.forward(bn2_out)
     # pool2_out = pool2.forward(relu2_out)
 
     fc1_out1 = fc1.forward(relu2_out)
@@ -65,7 +65,7 @@ def forward(imgs, labs,training=True):
 
 for epoch in range(5):
     start=time.time()
-    learning_rate = 0.01
+    learning_rate = 0.05
 
     batch_loss = 0
     batch_acc = 0
@@ -92,13 +92,13 @@ for epoch in range(5):
 
         # gpool2=pool2.backward(gfc1)
         grelu2=relu2.backward(gfc1)
-        # gbn2=bn2.backward(grelu2,lr=0.001)
-        gconv2=conv2.backward(grelu2)
+        gbn2=bn2.backward(grelu2,lr=0.001)
+        gconv2=conv2.backward(gbn2)
 
         gpool1=pool1.backward(gconv2)
         grelu1=relu1.backward(gpool1)
-        # gbn1=bn1.backward(grelu1,lr=0.001)
-        conv1.backward(grelu1)
+        gbn1=bn1.backward(grelu1,lr=0.001)
+        conv1.backward(gbn1)
         
         
         fc2.gradient(alpha=learning_rate, weight_decay=0.001)
@@ -113,8 +113,9 @@ for epoch in range(5):
             
             print ("epoch=%d  batchs=%d   train_acc: %.4f  " % (epoch,i, train_acc / (mod * batch_size)))
             train_acc = 0
-    print("----------------------------------------------------------------------------------------------------")
-    print(epoch,time.time()-start)
-    start=time.time()
-    test()
-    print("----------------------------------------------------------------------------------------------------")
+
+            print("----------------------------------------------------------------------------------------------------")
+            print(epoch,time.time()-start)
+            start=time.time()
+            test()
+            print("----------------------------------------------------------------------------------------------------")

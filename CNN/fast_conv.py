@@ -68,8 +68,8 @@ class Conv2D(object):
 
     def gradient(self, alpha=0.00001, weight_decay=0.0004):
         # weight_decay = L2 regularization
-        self.weights *= (1 - weight_decay)
-        self.bias *= (1 - weight_decay)
+        # self.weights *= (1 - weight_decay)
+        # self.bias *= (1 - weight_decay)
         self.weights -= alpha/self.batchsize * self.w_gradient
         self.bias -= alpha/self.batchsize * self.bias
 

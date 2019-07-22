@@ -5,11 +5,11 @@ import numpy as np
 class my_data_set:
     def __init__(self, kind='train'):
         if kind=='train':
-            images_path =r'../mnist_dataset/train-images.idx3-ubyte'
-            labels_path =r'../mnist_dataset/train-labels.idx1-ubyte'
+            images_path =r'./mnist_dataset/train-images.idx3-ubyte'
+            labels_path =r'./mnist_dataset/train-labels.idx1-ubyte'
         else: 
-            images_path =r'../mnist_dataset/t10k-images.idx3-ubyte'
-            labels_path =r'../mnist_dataset/t10k-labels.idx1-ubyte'
+            images_path =r'./mnist_dataset/t10k-images.idx3-ubyte'
+            labels_path =r'./mnist_dataset/t10k-labels.idx1-ubyte'
         # print(images_path, labels_path)
         with open(labels_path, 'rb') as lbpath:
             magic, n = struct.unpack('>II',lbpath.read(8))
