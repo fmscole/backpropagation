@@ -78,14 +78,15 @@ class NetWork:
 n=NetWork()
 data=my_data_set( kind='train')
 
-epochs = 1
+batch=170  #np.min([i+10,100])
+epochs = 10
 for e in range(epochs):
-    for i  in range(60000):
+    for i  in range(60000//batch):
         #小批量训练
-        batch=17  #np.min([i+10,100])
+        
         imgs,labs=data.next_batch(batch)
         n.train(imgs, labs)
 
-        if (i+1)%500==0:
-            # print(i,batch)
-            n.test()
+        # if (i+1)%500==0:
+    print("epochs=",e)
+    n.test()
