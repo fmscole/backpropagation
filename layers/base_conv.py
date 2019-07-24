@@ -8,54 +8,50 @@ class Conv2D(object):
         self.input_shape = shape
         self.output_channels = output_channels
         self.input_channels = shape[-1]
-        self.batchsize = shape[0]
         self.stride = stride
         self.ksize = ksize
         self.method = method
 
-        weights_scale = math.sqrt(
-            reduce(lambda x, y: x * y, shape) / self.output_channels)
-        self.weights = np.random.standard_normal(
-            (ksize*ksize, self.input_channels, self.output_channels)) / weights_scale
-        self.bias = np.random.standard_normal(
-            self.output_channels) / weights_scale
-
-        if method == 'VALID':
-            self.eta = np.zeros((shape[0], int((shape[1] - ksize + 1) / self.stride), int((shape[1] - ksize + 1) / self.stride),
-                                 self.output_channels))
-
-        if method == 'SAME':
-            self.eta = np.zeros(
-                (shape[0], shape[1]/self.stride, shape[2]/self.stride, self.output_channels))
+        weights_scale = math.sqrt(reduce(lambda x, y: x * y, shape) / self.output_channels)
+        self.weights = np.random.standard_normal((ksize*ksize, self.input_channels, self.output_channels)) / weights_scale
+        self.bias = np.random.standard_normal(self.output_channels) / weights_scale
 
         self.w_gradient = np.zeros(self.weights.shape)
         self.b_gradient = np.zeros(self.bias.shape)
-        self.output_shape = self.eta.shape
-
+        
         if (shape[1] - ksize) % stride != 0:
             print('input tensor width can\'t fit stride')
         if (shape[2] - ksize) % stride != 0:
             print('input tensor height can\'t fit stride')
 
     def forward(self, x):
-        col_weights = self.weights.reshape([-1, self.output_channels])
+        shape=x.shape
+        if self.method == 'VALID':
+            self.eta = np.zeros((shape[0], int((shape[1] - self.ksize + 1) / self.stride), int((shape[1] - self.ksize + 1) / self.stride),
+                                 self.output_channels))
+        if self.method == 'SAME':
+            self.eta = np.zeros((shape[0], shape[1]/self.stride, shape[2]/self.stride, self.output_channels))
+
         if self.method == 'SAME':
             x = np.pad(x, (
                 (0, 0), (self.ksize / 2, self.ksize / 2), (self.ksize / 2, self.ksize / 2), (0, 0)),
                 'constant', constant_values=0)
 
+        col_weights = self.weights.reshape([-1, self.output_channels])
         self.col_image = []
+        self.batchsize=x.shape[0]
         conv_out = np.zeros(self.eta.shape)
+        
         for i in range(self.batchsize):
             img_i = x[i]
             self.col_image_i = im2col(img_i, self.ksize, self.stride)
-            conv_out[i] = np.reshape(
-                np.dot(self.col_image_i, col_weights) + self.bias, self.eta[0].shape)
+            res=np.dot(self.col_image_i, col_weights) + self.bias
+            conv_out[i] = np.reshape(res, self.eta[0].shape)
             self.col_image.append(self.col_image_i)
         self.col_image = np.array(self.col_image)
         return conv_out
 
-    def gradient(self, eta):
+    def backward(self, eta):
         self.eta = eta
         col_eta = np.reshape(eta, [self.batchsize, -1, self.output_channels])
 
@@ -74,22 +70,22 @@ class Conv2D(object):
             pad_eta = np.pad(self.eta, (
                 (0, 0), (self.ksize / 2, self.ksize / 2), (self.ksize / 2, self.ksize / 2), (0, 0)),
                 'constant', constant_values=0)
-        #flip_weights=self.weights.reshape([-1,self.input_channels,self.output_channels])
+
         flip_weights=self.weights[::-1,...]
         flip_weights = flip_weights.swapaxes(1, 2)
-        # flip_weights = np.flipud(np.fliplr(self.weights))
-        # flip_weights = flip_weights.swapaxes(2, 3)
         col_flip_weights = flip_weights.reshape([-1, self.input_channels])
+
         col_pad_eta = np.array([im2col(
             pad_eta[i], self.ksize, self.stride) for i in range(self.batchsize)])
+
         next_eta = np.dot(col_pad_eta, col_flip_weights)
         next_eta = np.reshape(next_eta, self.input_shape)
         return next_eta
 
-    def backward(self, alpha=0.00001, weight_decay=0.0004):
+    def gradient(self, alpha=0.00001, weight_decay=0.0004):
         # weight_decay = L2 regularization
-        self.weights *= (1 - weight_decay)
-        self.bias *= (1 - weight_decay)
+        # self.weights *= (1 - weight_decay)
+        # self.bias *= (1 - weight_decay)
         self.weights -= alpha/self.batchsize * self.w_gradient
         self.bias -= alpha/self.batchsize * self.bias
 
