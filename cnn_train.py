@@ -1,6 +1,6 @@
 import numpy as np
-from layers.base_conv import Conv2D
-# from layers.fast_conv import Conv2D
+# from layers.base_conv import Conv2D
+from layers.fast_conv import Conv2D
 from layers.Dense import Dense
 from layers.pooling import MaxPooling as Pooling
 # from layers.pooling import MeanPooling as Pooling
