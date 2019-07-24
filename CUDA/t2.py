@@ -5,7 +5,7 @@ import math
 import time
 # Controls threads per block and shared memory usage.
 # The computation will be done on blocks of TPBxTPB elements.
-TPB = 16
+TPB =2
 
 @cuda.jit
 def fast_matmul(A, B, C):
@@ -41,16 +41,16 @@ def fast_matmul(A, B, C):
 
         # Computes partial product on the shared memory
         for j in range(TPB):
-            tmp += sA[tx, j] * sB[j, ty]
+            tmp +=sA[tx, j] * sB[j, ty]
 
         # Wait until all threads finish computing
         cuda.syncthreads()
 
-    C[x, y] = tmp
+    C[x, y] = x#tmp
 
 # The data array
-A = numpy.full((TPB*2, TPB*3), 3, numpy.float) # [32 x 48] matrix containing all 3's
-B = numpy.full((TPB*3, TPB*1), 4, numpy.float) # [48 x 16] matrix containing all 4's
+A = numpy.full((TPB*2, TPB*3), 1, numpy.float) # [32 x 48] matrix containing all 3's
+B = numpy.full((TPB*3, TPB*1), 1, numpy.float) # [48 x 16] matrix containing all 4's
 
 A_global_mem = cuda.to_device(A)
 B_global_mem = cuda.to_device(B)
@@ -67,3 +67,5 @@ fast_matmul[blockspergrid, threadsperblock](A_global_mem, B_global_mem, C_global
 res = C_global_mem.copy_to_host()
 print(time.time()-start)
 print(res)
+print("blockspergrid=",blockspergrid)
+print("threadsperblock=",threadsperblock)

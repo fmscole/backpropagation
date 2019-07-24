@@ -8,6 +8,7 @@ from CNN.softmax import Softmax
 from CNN.relu import Relu
 from CNN.my_read_Data import my_data_set
 from CNN.batch_normal import BatchNormal as BN
+from CNN.dropout import Dropout
 import time
 
 data = my_data_set(kind='train')
@@ -22,6 +23,7 @@ pool1 = Pooling()
 conv2 = Conv2D([batch_size,24, 24,8], 16, 5, 1)
 # bn2=BN()
 relu2 = Relu()
+dropout=Dropout(p=0.5)
 # pool2 = Pooling()
 fc1 = FullyConnect(1024, 200)
 relu3 = Relu()
@@ -55,8 +57,8 @@ def forward(imgs, labs,training=True):
     # bn2_out = bn2.forward(conv2_out, axis=3,training=training)
     relu2_out = relu2.forward(conv2_out)
     # pool2_out = pool2.forward(relu2_out)
-
-    fc1_out1 = fc1.forward(relu2_out)
+    dropout_out=dropout.forward(relu2_out,trainable=forward)
+    fc1_out1 = fc1.forward(dropout_out)
     relu3_out1 = relu3.forward(fc1_out1)
     fc2_out = fc2.forward(relu3_out1)
     sf_out=sf.forward(fc2_out)
@@ -89,9 +91,9 @@ for epoch in range(5):
         gfc2=fc2.backward(sf_out-labs)
         grelu3=relu3.backward(gfc2)
         gfc1=fc1.backward(grelu3)
-
+        gdropout=dropout.backward(gfc1)
         # gpool2=pool2.backward(gfc1)
-        grelu2=relu2.backward(gfc1)
+        grelu2=relu2.backward(gdropout)
         # gbn2=bn2.backward(grelu2,lr=0.001)
         gconv2=conv2.backward(grelu2)
 

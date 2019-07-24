@@ -14,6 +14,6 @@ class Softmax(object):
     
     def backward(self, y):
         # 一般Softmax的反向传播和CrossEntropyLoss的放在一起
-        pass
+        return y
     # def cal_loss(self, y,t):
         

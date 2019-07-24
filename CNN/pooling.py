@@ -128,19 +128,40 @@ if __name__ == "__main__":
     # print(img1[0].shape)
     # plt.imshow(img1[0])
     # plt.show()
-
-    size=4
-    x=np.array(range(2*12*12*3)).reshape(2,12,12,3)
+    #-----------------------------------------------------------------------------------------------------
+    x=np.array(range(4*4)).reshape(1,4,4,1)
     print(x[0,:,:,0])
+    pool=MaxPooling()
+    y=pool.forward(x)
+    print(y[0,:,:,0])
+    z=pool.backward(y)
+    print(z[0,:,:,0])
+    #------------------------------------------------------------------------------------------------------
+    # size=2
+    # stride=1
+    # x=np.array(range(4*4*3)).reshape(4,4,3)
+    # print(x[:,:,0])
 
-    N, H, W, C = x.shape
-    oh = (H - size) // size + 1
-    ow = (W - size) // size + 1
-    reshape = (N, oh, ow, size, size, C)
-    strides = (x.strides[0], x.strides[1] * size, x.strides[2] * size, *x.strides[1:])
-    out = np.lib.stride_tricks.as_strided(x,shape=reshape,strides=strides)
+    # H, W,C= x.shape
+    # oh = (H - size)  + 1
+    # ow = (W - size) + 1
+    # reshape = (oh, ow, size, size,C)
+    # strides = (x.strides[0]*stride, x.strides[1] * stride, x.strides[0] * stride, x.strides[1],x.strides[-1])
+    # out = np.lib.stride_tricks.as_strided(x,shape=reshape,strides=strides)
+    # print(out[1,1,:,:,0])
+    #------------------------------------------------------------------------------------
+    # size=4
+    # x=np.array(range(2*12*12*3)).reshape(2,12,12,3)
+    # print(x[0,:,:,0])
 
-    print(out[0,0,0,:,:,0])
+    # N, H, W, C = x.shape
+    # oh = (H - size) // size + 1
+    # ow = (W - size) // size + 1
+    # reshape = (N, oh, ow, size, size, C)
+    # strides = (x.strides[0], x.strides[1] * size, x.strides[2] * size, *x.strides[1:])
+    # out = np.lib.stride_tricks.as_strided(x,shape=reshape,strides=strides)
+
+    # print(out[0,0,0,:,:,0])
 
     
 

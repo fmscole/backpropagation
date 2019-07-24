@@ -78,7 +78,7 @@ class NetWork:
 n=NetWork()
 data=my_data_set( kind='train')
 
-batch=170  #np.min([i+10,100])
+batch=17  #np.min([i+10,100])
 epochs = 10
 for e in range(epochs):
     for i  in range(60000//batch):
