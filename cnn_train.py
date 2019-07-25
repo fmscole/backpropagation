@@ -74,7 +74,7 @@ epochs=5
 # ]
 
 
-#最简答的神经网络，准确率92%
+#最简单的神经网络，准确率92%
 # epochs=50
 # seq=[
 #     Dense(output_num=10),
@@ -108,6 +108,7 @@ for epoch in range(epochs):
     val_loss = 0
 
     # train
+    total=0
     train_acc = 0
     train_loss = 0
     # imgs,labs=data.next_batch(batch_size)
@@ -124,11 +125,13 @@ for epoch in range(epochs):
         for j in range(batch_size):
             if np.argmax(sf_out[j]) == np.argmax(labs[j]):
                 train_acc += 1
+            total+=1
 
         mod = 100
         if i % mod == 0:
-            print ("epoch=%d  batchs=%d   train_acc: %.4f  " % (epoch,i, train_acc / (mod * batch_size)))
+            print ("epoch=%d  batchs=%d   train_acc: %.4f  " % (epoch,i, train_acc / total))
             train_acc = 0
+            total=0
 
     print("----------------------------------------------------------------------------------------------------")
     print("epoch=",epoch," batchs=%d      time is:  %5.5f (sec)"%(i,time.time()-start))
