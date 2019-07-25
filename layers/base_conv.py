@@ -41,11 +41,11 @@ class Conv2D(object):
             self.eta = np.zeros((shape[0], int((shape[1] - self.ksize + 1) / self.stride), int((shape[1] - self.ksize + 1) / self.stride),
                                  self.output_channels))
         if self.method == 'SAME':
-            self.eta = np.zeros((shape[0], shape[1]/self.stride, shape[2]/self.stride, self.output_channels))
+            self.eta = np.zeros((shape[0], shape[1]//self.stride, shape[2]//self.stride, self.output_channels))
 
         if self.method == 'SAME':
             x = np.pad(x, (
-                (0, 0), (self.ksize / 2, self.ksize / 2), (self.ksize / 2, self.ksize / 2), (0, 0)),
+                (0, 0), (self.ksize // 2, self.ksize // 2), (self.ksize // 2, self.ksize // 2), (0, 0)),
                 'constant', constant_values=0)
 
         col_weights = self.weights.reshape([-1, self.output_channels])
@@ -79,7 +79,7 @@ class Conv2D(object):
 
         if self.method == 'SAME':
             pad_eta = np.pad(self.eta, (
-                (0, 0), (self.ksize / 2, self.ksize / 2), (self.ksize / 2, self.ksize / 2), (0, 0)),
+                (0, 0), (self.ksize // 2, self.ksize // 2), (self.ksize // 2, self.ksize // 2), (0, 0)),
                 'constant', constant_values=0)
 
         flip_weights=self.weights[::-1,...]

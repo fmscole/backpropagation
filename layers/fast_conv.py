@@ -58,7 +58,7 @@ class Conv2D(object):
 
         if self.method == 'SAME':
             pad_eta = np.pad(self.eta, (
-                (0, 0), (self.ksize / 2, self.ksize / 2), (self.ksize / 2, self.ksize / 2), (0, 0)),
+                (0, 0), (self.ksize // 2, self.ksize // 2), (self.ksize // 2, self.ksize // 2), (0, 0)),
                 'constant', constant_values=0)
 
         pad_eta=self.split_by_strides(pad_eta)

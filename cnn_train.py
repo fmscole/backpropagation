@@ -8,6 +8,7 @@ from layers.relu import Relu,Sigmoid
 from layers.my_read_Data import my_data_set
 from layers.batch_normal import BatchNormal as BN
 from layers.dropout import Dropout
+from layers.res_block import res_block
 from Net import Net
 import time
 
@@ -18,27 +19,41 @@ test_data = my_data_set(kind='test')
 #超参数
 batch_size = 17
 learning_rate = 0.01
-epochs=5
+epochs=500
 #定义网络结构
 #不同的参数和结构会有不同的准确率，由于每次初始化也会影响到准确率，
 #下面这个网络在epochs=5时准确率在98.6%到98.75%之间
+#下面这个网络在epochs=87时准确率99%
+#每个epoch耗时85秒
+# seq=[
+#     Conv2D(output_channels=8,ksize=5,stride=1),
+#     BN(),
+#     Relu(),
+#     MaxPooling(),
+#     Conv2D(output_channels=16, ksize=5, stride=1),
+#     BN(),
+#     Relu(),
+#     # Sigmoid(),
+#     Dropout(p=0.2),
+#     Dense(output_num=200),
+#     Relu(),
+#     Dense( output_num=10),
+#     # Sigmoid()
+#     Softmax()
+# ]
+
+#残差网络
+#每个epoch耗时97秒
 seq=[
     Conv2D(output_channels=8,ksize=5,stride=1),
-    BN(),
-    Relu(),
     MaxPooling(),
-    Conv2D(output_channels=16, ksize=5, stride=1),
-    BN(),
-    Relu(),
-    # Sigmoid(),
+    res_block(),
+    res_block(),
     Dropout(p=0.2),
-    Dense(output_num=200),
-    Relu(),
     Dense( output_num=10),
-    # Sigmoid()
     Softmax()
 ]
-
+epochs=5
 
 #没有BN层，训练不够稳定，开始若干个batch准确率都没有提升，
 #学习率learning_rate对结果影响比较大，甚至不收敛
