@@ -4,25 +4,36 @@ import math
 
 
 class Conv2D(object):
-    def __init__(self, shape, output_channels, ksize=3, stride=1, method='VALID'):
-        self.input_shape = shape
+    def __init__(self,output_channels, ksize=3, stride=1, method='VALID'):
         self.output_channels = output_channels
-        self.input_channels = shape[-1]
         self.stride = stride
         self.ksize = ksize
         self.method = method
-
+    def OutShape(self,shape):
+        self.input_shape=shape
+        self.input_channels = shape[-1]
         weights_scale = math.sqrt(reduce(lambda x, y: x * y, shape) / self.output_channels)
-        self.weights = np.random.standard_normal((ksize*ksize, self.input_channels, self.output_channels)) / weights_scale
+        self.weights = np.random.standard_normal((self.ksize*self.ksize, self.input_channels, self.output_channels)) / weights_scale
         self.bias = np.random.standard_normal(self.output_channels) / weights_scale
 
         self.w_gradient = np.zeros(self.weights.shape)
         self.b_gradient = np.zeros(self.bias.shape)
         
-        if (shape[1] - ksize) % stride != 0:
+        if (shape[1] - self.ksize) % self.stride != 0:
             print('input tensor width can\'t fit stride')
-        if (shape[2] - ksize) % stride != 0:
+        if (shape[2] - self.ksize) % self.stride != 0:
             print('input tensor height can\'t fit stride')
+
+        if self.method == 'VALID':
+            return [shape[0], 
+                    (shape[1] - self.ksize + 1) // self.stride, 
+                    (shape[1] - self.ksize + 1) // self.stride,
+                    self.output_channels]
+        # self.method == 'SAME':
+        return [shape[0], 
+                shape[1]// self.stride, 
+                shape[2]// self.stride, 
+                self.output_channels]
 
     def forward(self, x):
         shape=x.shape

@@ -18,7 +18,8 @@ class Dropout(object):
             The dropout propbability during training
         """
         self.p = p
-    
+    def OutShape(self,shape):
+        return shape
     def forward(self, X,trainable=True):
         self.trainable=trainable
         scaler, mask = 1.0, np.ones(X.shape).astype(bool)

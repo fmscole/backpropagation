@@ -1,6 +1,8 @@
 import numpy as np
 
 class Relu(object):
+    def OutShape(self,shape):
+        return shape
     def forward(self, x):
         self.x = x
         return np.maximum(0, x)
@@ -10,6 +12,8 @@ class Relu(object):
         return eta
 
 class Softmax(object):
+    def OutShape(self,shape):
+        return shape
     def forward(self, x):
         '''
         x.shape = (N, C)
@@ -25,6 +29,9 @@ class Softmax(object):
         pass
 
 class Sigmoid(object):
+    def OutShape(self,shape):
+        return shape
+        
     def forward(self, x):
         self.y = 1 / (1 + np.exp(-x))
         return self.y

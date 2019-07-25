@@ -5,7 +5,7 @@ import math
 import time
 # Controls threads per block and shared memory usage.
 # The computation will be done on blocks of TPBxTPB elements.
-TPB =2
+TPB =32
 
 @cuda.jit
 def fast_matmul(A, B, C):
@@ -46,7 +46,7 @@ def fast_matmul(A, B, C):
         # Wait until all threads finish computing
         cuda.syncthreads()
 
-    C[x, y] = x#tmp
+    C[x, y] = ty#tmp
 
 # The data array
 A = numpy.full((TPB*2, TPB*3), 1, numpy.float) # [32 x 48] matrix containing all 3's

@@ -4,14 +4,17 @@ import math
 
 
 class Dense(object):
-    def __init__(self, input_num, output_num):
-        self.input_len = input_num
-
-        self.weights = np.random.normal(0.0, pow(self.input_len, -0.5), (self.input_len, output_num))
-        self.bias = np.random.normal(0.0, pow(output_num, -0.5),output_num)
+    def __init__(self,output_num):
+        self.output_num=output_num
+    def OutShape(self,shape):
+        self.input_len =reduce(lambda x, y: x * y, shape[1:])
+        self.weights = np.random.normal(0.0, pow(self.input_len, -0.5), (self.input_len, self.output_num))
+        self.bias = np.random.normal(0.0, pow(self.output_num, -0.5),self.output_num)
         self.w_gradient = np.zeros(self.weights.shape)
         self.b_gradient = np.zeros(self.bias.shape)
 
+        return [shape[0],self.output_num]
+        
     def forward(self, x):
         self.batchsize = x.shape[0]
         self.x = x.reshape(-1, self.input_len)

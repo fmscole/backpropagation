@@ -8,6 +8,9 @@ class BatchNormal:
         self.mean=None
         self.var=None
         pass
+    def OutShape(self,shape):
+        return shape
+
     def forward(self,input,axis=3,momentum=0.95,training=True):
         '''
         axis: channel所在的维度,比如input为[batch,height,width,channel],则axis=3（或-1）。

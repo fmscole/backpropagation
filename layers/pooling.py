@@ -7,7 +7,9 @@ class MaxPooling(object):
         size: Pooling的窗口大小，因为在使用中窗口大小与步长基本一致，所以简化为一个参数
         '''
         self.size = size
-        
+    def OutShape(self,shape):
+        return [shape[0],shape[1]//self.size,shape[2]//self.size,shape[3]]
+
     def forward(self, x):
         # 首先将输入按照窗口大小划分为若干个子集
         #这个reshape方式非常精妙，把一个维度拆分为两个维度，并没有用滑动窗口的方式
@@ -40,6 +42,9 @@ class MeanPooling(object):
     def __init__(self,size=2, **kwargs):
         self.size = size
         
+    def OutShape(self,shape):
+        return [shape[0],shape[1]//self.size,shape[2]//self.size,shape[3]]
+
     def forward(self, x):
         out = x.reshape(x.shape[0], x.shape[1]//self.size, self.size, x.shape[2]//self.size, self.size, x.shape[3])
         return out.mean(axis=(2, 4))
