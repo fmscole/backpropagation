@@ -12,8 +12,8 @@
 
 2.CNN是卷积神经网络。
   来自
-  https://github.com/wuziheng/CNN-Numpy
-  https://github.com/leeroee/MNN
+  https://github.com/wuziheng/CNN-Numpy    
+  https://github.com/leeroee/MNN    
   https://github.com/sebgao/cTensor
   
 3.RNN是循环神经网络。
