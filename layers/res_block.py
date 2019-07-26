@@ -17,9 +17,10 @@ class res_block(object):
         self.ksize = ksize
     def OutShape(self,shape):
         self.conv1=Conv2D(output_channels=8,ksize=self.ksize,stride=self.stride,method="SAME")
+        self.bn1=BN()
         self.relu1=Relu()
         self.conv2=Conv2D(output_channels=shape[-1],ksize=self.ksize,stride=self.stride,method="SAME")
-        self.bn=BN()
+        self.bn2=BN()
         self.relu2=Relu()
 
         out_shape=shape
@@ -31,19 +32,22 @@ class res_block(object):
     def forward(self, x):
         out=x
         out=self.conv1.forward(out)
+        out=self.bn1.forward(out)
         out=self.relu1.forward(out)
         out=self.conv2.forward(out)
-        out=self.bn.forward(out)
-        out=self.relu2.forward(out)
-        return x+out
+        out=self.bn2.forward(out)
+        out=self.relu2.forward(x+out)
+        return out
     def backward(self, eta):
         out=eta
         out=self.relu2.backward(out)
-        out=self.bn.backward(out)
+        outx=out
+        out=self.bn2.backward(out)
         out=self.conv2.backward(out)
         out=self.relu1.backward(out)
+        out=self.bn1.backward(out)
         out=self.conv1.backward(out)
-        return eta+out
+        return out+outx
     def gradient(self, alpha=0.00001, weight_decay=0.0004):
         self.conv1.gradient(alpha=alpha,weight_decay=weight_decay)
         self.conv2.gradient(alpha=alpha,weight_decay=weight_decay)

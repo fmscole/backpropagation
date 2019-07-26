@@ -8,28 +8,35 @@ import time
 def matmul(A, B, C):
     """Perform matrix multiplication of C = A * B
     """
-    tx= cuda.threadIdx.x
-    ty= cuda.threadIdx.y
-    tz= cuda.threadIdx.z
-
-    bdx=cuda.blockDim.x
-    bdy=cuda.blockDim.y
-    bdz=cuda.blockDim.z
+    gdx=cuda.gridDim.x
+    gdy=cuda.gridDim.y
+    gdz=cuda.gridDim.z
 
     bx=cuda.blockIdx.x
     by=cuda.blockIdx.y
     bz=cuda.blockIdx.z
 
-    gdx=cuda.gridDim.x
-    gdy=cuda.gridDim.y
-    gdz=cuda.gridDim.z
+    
+
+    bdx=cuda.blockDim.x
+    bdy=cuda.blockDim.y
+    bdz=cuda.blockDim.z
+
+    tx= cuda.threadIdx.x
+    ty= cuda.threadIdx.y
+    tz= cuda.threadIdx.z
+
+    
+
+    
 
     row, col,z = cuda.grid(3)
     if row < C.shape[0] and col < C.shape[1]:
         tmp = 0.
-        for k in range(A.shape[1]):
-            tmp += A[row, k] * B[k, col]
-        C[row, col] =z
+        # for k in range(A.shape[1]):
+        #     tmp += A[row, k] * B[k, col]
+        index=(bx*gdy+tx)*(gdx*gdy)+by*gdx+ty
+        C[bx*gdy+tx,by*gdx+ty] =index
         
 # Host code
 start=time.time()
@@ -42,13 +49,13 @@ A_global_mem = cuda.to_device(A)
 B_global_mem = cuda.to_device(B)
 
 # Allocate memory on the device for the result
-C_global_mem = cuda.device_array((12, 11))
+C_global_mem = cuda.device_array((12,12))
 
 # Configure the blocks: x*y*z<=1024
-threadsperblock = (3,2,1)
+threadsperblock = (3,4)
 blockspergrid_x = int(math.ceil(A.shape[0] / threadsperblock[0]))
 blockspergrid_y = int(math.ceil(B.shape[1] / threadsperblock[1]))
-blockspergrid = (2, 2,10)
+blockspergrid = (4,3)
 
 # Start the kernel 
 matmul[blockspergrid, threadsperblock](A_global_mem, B_global_mem, C_global_mem)
