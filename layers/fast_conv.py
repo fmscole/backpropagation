@@ -1,7 +1,7 @@
 import numpy as np
 from functools import reduce
 import math
-
+from layers.cuda_tool import cuda_conv
 
 class Conv2D(object):
     def __init__(self,output_channels, ksize=3, stride=1, method='VALID'):

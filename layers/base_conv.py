@@ -1,7 +1,7 @@
 import numpy as np
 from functools import reduce
 import math
-
+from layers.cuda_tool import cuda_im2col
 
 class Conv2D(object):
     def __init__(self,output_channels, ksize=3, stride=1, method='VALID'):
@@ -53,13 +53,16 @@ class Conv2D(object):
         self.batchsize=x.shape[0]
         conv_out = np.zeros(self.eta.shape)
         
-        for i in range(self.batchsize):
-            img_i = x[i]
-            self.col_image_i = im2col(img_i, self.ksize, self.stride)
-            res=np.dot(self.col_image_i, col_weights) + self.bias
-            conv_out[i] = np.reshape(res, self.eta[0].shape)
-            self.col_image.append(self.col_image_i)
-        self.col_image = np.array(self.col_image)
+        self.col_image=cuda_im2col(x,self.ksize)
+        # for i in range(self.batchsize):
+        #     img_i = x[i]
+        #     self.col_image_i = im2col(img_i, self.ksize, self.stride)
+        #     self.col_image.append(self.col_image_i)
+        # self.col_image = np.array(self.col_image)
+
+        conv_out=np.dot(self.col_image, col_weights)
+
+        conv_out=np.reshape(conv_out, self.eta.shape)
         return conv_out
 
     def backward(self, eta):
@@ -86,10 +89,13 @@ class Conv2D(object):
         flip_weights = flip_weights.swapaxes(1, 2)
         col_flip_weights = flip_weights.reshape([-1, self.input_channels])
 
-        col_pad_eta = np.array([im2col(
-            pad_eta[i], self.ksize, self.stride) for i in range(self.batchsize)])
+        # col_pad_eta = np.array([im2col(pad_eta[i], self.ksize, self.stride) for i in range(self.batchsize)])
+        
+
+        col_pad_eta=cuda_im2col(pad_eta,self.ksize)
 
         next_eta = np.dot(col_pad_eta, col_flip_weights)
+
         next_eta = np.reshape(next_eta, self.input_shape)
         return next_eta
 

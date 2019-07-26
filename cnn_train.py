@@ -1,6 +1,6 @@
 import numpy as np
-# from layers.base_conv import Conv2D
-from layers.fast_conv import Conv2D
+from layers.base_conv import Conv2D
+# from layers.fast_conv import Conv2D
 from layers.Dense import Dense
 from layers.pooling import MaxPooling ,MeanPooling
 from layers.softmax import Softmax
@@ -18,7 +18,7 @@ test_data = my_data_set(kind='test')
 
 #超参数
 batch_size = 17
-learning_rate = 0.01
+learning_rate = 0.05
 epochs=500
 #定义网络结构
 #不同的参数和结构会有不同的准确率，由于每次初始化也会影响到准确率，
