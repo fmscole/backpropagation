@@ -1,7 +1,7 @@
 import numpy as np
 from functools import reduce
 import math
-from layers.cuda_tool import cuda_im2col
+from layers.cuda_tool import cuda_im2col,cuda_dot2
 
 class Conv2D(object):
     def __init__(self,output_channels, ksize=3, stride=1, method='VALID'):
@@ -59,9 +59,9 @@ class Conv2D(object):
         #     self.col_image_i = im2col(img_i, self.ksize, self.stride)
         #     self.col_image.append(self.col_image_i)
         # self.col_image = np.array(self.col_image)
-
         conv_out=np.dot(self.col_image, col_weights)
-
+        # conv_out=cuda_dot2(self.col_image, col_weights)
+        
         conv_out=np.reshape(conv_out, self.eta.shape)
         return conv_out
 
@@ -93,8 +93,9 @@ class Conv2D(object):
         
 
         col_pad_eta=cuda_im2col(pad_eta,self.ksize)
-
         next_eta = np.dot(col_pad_eta, col_flip_weights)
+
+        # next_eta = np.dot(col_pad_eta, col_flip_weights)
 
         next_eta = np.reshape(next_eta, self.input_shape)
         return next_eta

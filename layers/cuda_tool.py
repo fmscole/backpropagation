@@ -108,31 +108,32 @@ def cuda_im2col2(x,ksize,stride=1) :
 
 @cuda.jit
 def batchdot2(A, B, C):
-    batch=cuda.blockIdx.x #B
-    row=cuda.blockIdx.y #H
-    col=cuda.blockIdx.z #W
+    C=numpy.dot(A,B)
+    # batch=cuda.blockIdx.x #B
+    # row=cuda.blockIdx.y #H
+    # col=cuda.blockIdx.z #W
 
-    i= cuda.threadIdx.x #kh
+    # i= cuda.threadIdx.x #kh
 
     # batch,row, col= cuda.grid(3)
     # temp=0
     # if batch>=A.shape[0] or row>=A.shape[1] or col>=B.shape[1]: return
     # for i in range(A.shape[2]):
     #     temp+=A[batch,row,i]*B[i,col]
-    C[batch,row,col]+=A[batch,row,i]*B[i,col]
+    # C[batch,row,col]+=A[batch,row,i]*B[i,col]
 
 def cuda_dot2(x,y) :    
         B=x.shape[0]
         H=x.shape[1]
-        i=x.shape[2]
         W=y.shape[1]
 
         A_global_mem = cuda.to_device(x)
         B_global_mem = cuda.to_device(y)
         C_global_mem = cuda.device_array((B,H,W))
 
-        threadsperblock = (i,1,1)
-        blockspergrid =(B,H,W)
+        threadsperblock = (32,1,1)
+        # blockspergrid =(H,W)
+        blockspergrid =(int(math.ceil(B/ threadsperblock[0])),H,W)
         batchdot2[blockspergrid, threadsperblock](A_global_mem, B_global_mem, C_global_mem)
         return C_global_mem.copy_to_host()   
 # x=numpy.array(range(2*16*17)).reshape(2,16,17)

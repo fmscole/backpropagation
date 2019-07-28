@@ -1,6 +1,6 @@
 import numpy as np
-from layers.base_conv import Conv2D
-# from layers.fast_conv import Conv2D
+# from layers.base_conv import Conv2D
+from layers.fast_conv import Conv2D
 from layers.Dense import Dense
 from layers.pooling import MaxPooling ,MeanPooling
 from layers.softmax import Softmax
@@ -17,46 +17,52 @@ data = my_data_set(kind='train')
 test_data = my_data_set(kind='test')
 
 #超参数
-batch_size = 17
-learning_rate = 0.05
-epochs=500
+batch_size = 32
+learning_rate = 0.01
+# epochs=500
 #定义网络结构
 #不同的参数和结构会有不同的准确率，由于每次初始化也会影响到准确率，
 #下面这个网络在epochs=5时准确率在98.6%到98.75%之间
 #下面这个网络在epochs=87时准确率99%
 #每个epoch耗时85秒
-# seq=[
-#     Conv2D(output_channels=8,ksize=5,stride=1),
-#     BN(),
-#     Relu(),
-#     MaxPooling(),
-#     Conv2D(output_channels=16, ksize=5, stride=1),
-#     BN(),
-#     Relu(),
-#     # Sigmoid(),
-#     Dropout(p=0.2),
-#     Dense(output_num=200),
-#     Relu(),
-#     Dense( output_num=10),
-#     # Sigmoid()
-#     Softmax()
-# ]
+
+epochs=5
+seq=[
+    Conv2D(output_channels=8,ksize=5,stride=1),
+    BN(),
+    Relu(),
+    MaxPooling(),
+    Conv2D(output_channels=16, ksize=5, stride=1),
+    BN(),
+    Relu(),
+    # Sigmoid(),
+    Dropout(p=0.2),
+    Dense(output_num=200),
+    Relu(),
+    Dense( output_num=10),
+    # Sigmoid()
+    Softmax()
+]
+
 
 #残差网络
 #每个epoch耗时97秒
-seq=[
-    Conv2D(output_channels=8,ksize=5,stride=1),
-    MaxPooling(),
-    res_block(),
-    res_block(),
-    Dropout(p=0.2),
-    Dense( output_num=10),
-    Softmax()
-]
-epochs=5
+
+# epochs=5
+# seq=[
+#     Conv2D(output_channels=7,ksize=3,stride=1),
+#     MaxPooling(),
+#     res_block(),
+#     res_block(),
+#     Dropout(p=0.2),
+#     Dense( output_num=10),
+#     Softmax()
+# ]
+
 
 #没有BN层，训练不够稳定，开始若干个batch准确率都没有提升，
 #学习率learning_rate对结果影响比较大，甚至不收敛
+
 # epochs=5
 # seq=[
 #     Conv2D(output_channels=8,ksize=3,stride=1),
@@ -75,6 +81,7 @@ epochs=5
 
 
 #最简单的神经网络，准确率92%
+
 # epochs=50
 # seq=[
 #     Dense(output_num=10),
@@ -83,12 +90,12 @@ epochs=5
 
 
 #input_shape必须是BHWC的顺序，如果不是，需要reshape和tanspose成NHWC顺序
-net=Net(seq=seq,input_shape=[batch_size,28, 28,1])
+net=Net(seq=seq)
 
 def  test():
     train_acc=0
     total=0
-    batch_size=10000
+    batch_size=128
     for i in range(10000//batch_size):
         imgs, labs = test_data.next_batch(batch_size)
         sf=net.forward(imgs,training=False)

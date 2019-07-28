@@ -16,7 +16,7 @@ class res_block(object):
         self.stride = stride
         self.ksize = ksize
     def OutShape(self,shape):
-        self.conv1=Conv2D(output_channels=8,ksize=self.ksize,stride=self.stride,method="SAME")
+        self.conv1=Conv2D(output_channels=7,ksize=self.ksize,stride=self.stride,method="SAME")
         self.bn1=BN()
         self.relu1=Relu()
         self.conv2=Conv2D(output_channels=shape[-1],ksize=self.ksize,stride=self.stride,method="SAME")
