@@ -1,6 +1,6 @@
 import numpy as np
-import matplotlib.pyplot as plt
-import cv2
+# import matplotlib.pyplot as plt
+# import cv2
 class MaxPooling(object):
     def __init__(self, size=2, **kwargs):
         '''
