@@ -1,3 +1,5 @@
+
+
 # backward
 
 #### 项目介绍
@@ -29,8 +31,8 @@
 
 #### 运行说明
 
-1. 在目录下“backprapagation”下运行。
-   如果是用pycharm或者vscode，在打开文件夹时，选“backprapagation”文件夹。
-   如果用jupyter notebook，则在backprapagation路径下启动jupyter notebook。
+1. 在目录下“backpropagation”下运行。
+   如果是用pycharm或者vscode，在打开文件夹时，选“backpropagation”文件夹。
+   如果用jupyter notebook，则在backpropagation路径下启动jupyter notebook。
    如果进入子目录运行程序，路径相关的代码需要您自己修改，否则不能正确运行。
    如果您对路径的设置熟悉，这些修改也是简单的。
